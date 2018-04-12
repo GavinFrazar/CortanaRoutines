@@ -6,6 +6,26 @@ var restify = require('restify');
 var builder = require('botbuilder');
 var botbuilder_azure = require("botbuilder-azure");
 
+/*-----------------------
+setting up table storage 
+-----------------------*/
+var storage = require('azure-storage');
+var connectionString = "DefaultEndpointsProtocol=https;AccountName=apollostorage2;AccountKey=35ZE7pRvyiDOv5mPNoUcIXQxfpocc4fDLASOe1p1mPIHv1fR2Y6yA7bnhiaoEpRozHphcFiKMR6wZrFFdsAlkQ==;TableEndpoint=https://apollostorage2.table.cosmosdb.azure.com:443/;";
+var storageClient = storage.createTableService(connectionString);
+
+storageClient.createTableIfNotExists('mytesttable', function (error, result, response) {
+    if (!error) {
+        // Table exists or created
+    }
+    if (result.created) {
+        console.log('created new table');
+    }
+    else {
+        console.log('table exists');
+    }
+});
+
+
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
@@ -38,4 +58,30 @@ bot.set('storage', tableStorage);
 
 bot.dialog('/', function (session) {
     session.say('test', 'oh my god you are totally going to, like, win this competition I think!');
+});
+
+/*----------------
+Entering multiple tasks
+----------------*/
+var task1 = {
+    PartitionKey: { '_': 'morning' },
+    RowKey: { '_': '1' },
+    description: { '_': 'weather' }
+};
+
+var task2 = {
+    PartitionKey: { '_': 'morning' },
+    RowKey: { '_': '2' },
+    description: { '_': 'traffic' },
+};
+
+var batch = new storage.TableBatch();
+
+batch.insertOrReplaceEntity(task1, { echoContent: true });
+batch.insertOrReplaceEntity(task2, { echoContent: true });
+
+storageClient.executeBatch('mytesttable', batch, function (error, result, response) {
+    if (!error) {
+        console.log('Batch completed');
+    }
 });
