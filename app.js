@@ -37,5 +37,5 @@ var bot = new builder.UniversalBot(connector);
 bot.set('storage', tableStorage);
 
 bot.dialog('/', function (session) {
-    session.say(', 'oh my god you are totally going to, like, win this competition I think!');
+    session.say('test', 'oh my god you are totally going to, like, win this competition I think!');
 });
