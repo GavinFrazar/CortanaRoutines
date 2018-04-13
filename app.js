@@ -48,8 +48,31 @@ server.post('/api/messages', connector.listen());
 * For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
 * ---------------------------------------------------------------------------------------- */
 
+function createTask(routineName, count, newCommand) {
+
+    var task = {
+        PartitionKey: { '_': routineName },
+        RowKey: { '_': count },
+        description: { '_': newCommand }
+    };
+
+    var batch = new storage.TableBatch();
+
+    batch.insertOrReplaceEntity(task, { echoContent: true });
+
+    storageClient.executeBatch('mytesttable', batch, function (error, result, response) {
+        if (!error) {
+            console.log('Batch completed');
+        }
+    });
+
+}
+
 var userInput;
 var numOrString;
+var rName;
+var count = 0;
+var displayCount = 0;
 
 
 var tableName = 'botdata';
@@ -64,7 +87,6 @@ var bot = new builder.UniversalBot(connector, [
     },
     function (session, results) {
         userInput = results.response;
-        // if(userInput == "create a routine" || "Create a routine."){
         if (userInput.includes("reate")) {
             session.say('', "How many tasks would you like?");
             builder.Prompts.number(session, "How many tasks would you like?");
@@ -80,11 +102,47 @@ var bot = new builder.UniversalBot(connector, [
         if (typeof numOrString == "string")
             builder.Prompts.number(session, "Invocing task from here");
         else {
+            count = numOrString;
             session.say('', "What would you like to name the routine?");
             builder.Prompts.text(session, "What would you like to name the routine?");
         }
+    },
+    function (session, results) {
+        numOrString = results.response;
+        session.say('', "What would you like to name routine " + (displayCount + 1) + "?");
+        builder.Prompts.text(session, "What would you like to name routine " + (displayCount + 1) + "?");
+        if (typeof numOrString == "string") {
+            rName = numOrString;
+            createTask(rName, displayCount.toString(), results.response);
+            displayCount++;
+        }
+    },
+    function (session, results) {
+        if (count != displayCount) {
+            session.say('', "What would you like to name routine " + (displayCount + 1) + "?");
+            builder.Prompts.text(session, "What would you like to name routine " + (displayCount + 1) + "?");
+            createTask(rName, displayCount.toString(), results.response);
+            displayCount++;
+        }
+    },
+    function (session, results) {
+        if (count != displayCount) {
+            session.say('', "What would you like to name routine " + (displayCount + 1) + "?");
+            builder.Prompts.text(session, "What would you like to name routine " + (displayCount + 1) + "?");
+            createTask(rName, displayCount.toString(), results.response);
+            displayCount++;
+        }
+    },
+    function (session, results) {
+        if (count != displayCount) {
+            session.say('', "What would you like to name routine " + (displayCount + 1) + "?");
+            builder.Prompts.text(session, "What would you like to name routine " + (displayCount + 1) + "?");
+            createTask(rName, displayCount.toString(), results.response);
+            displayCount++;
+        }
     }
 ]);
+
 
 /*----------------
 Entering multiple tasks
