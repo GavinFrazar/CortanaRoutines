@@ -28,7 +28,6 @@ var connector = new builder.ChatConnector({
     openIdMetadata: process.env.BotOpenIdMetadata
 });
 
-<<<<<<< HEAD
 // Listen for messages from users
 server.post('/api/messages', connector.listen());
 
@@ -37,9 +36,6 @@ server.post('/api/messages', connector.listen());
 * We provide adapters for Azure Table, CosmosDb, SQL Azure, or you can implement your own!
 * For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
 * ---------------------------------------------------------------------------------------- */
-=======
-// Create your bot with a function to receive messages from the user
->>>>>>> launcher
 
 var tableName = 'botdata';
 var azureTableClient = new botbuilder_azure.AzureTableClient(tableName, process.env['AzureWebJobsStorage']);
@@ -108,7 +104,6 @@ bot.dialog('/', [
     }
 ]);
 
-<<<<<<< HEAD
 bot.set('storage', tableStorage);
 bot.dialog('make', routine_builder.make);
 bot.dialog('nextSkill', routine_builder.nextSkill);
@@ -120,7 +115,6 @@ bot.dialog('news', news);
 
 var traffic = require('./traffic.js').traffic;
 bot.dialog('traffic', traffic);
-=======
 var routine_launcher = require('./routine-launcher');
 
 bot.dialog('skillExecutor', routine_launcher.skillExecutor);
@@ -131,5 +125,3 @@ bot.dialog('launch', routine_launcher.launch).triggerAction({ matches: [
 bot.dialog('make', routine_builder.make).triggerAction({ matches: [
     /(create|make|new)/i
  ]});
-bot.dialog('nextSkill', routine_builder.nextSkill);
->>>>>>> launcher
