@@ -60,9 +60,16 @@ var DialogLabels = {
     launch : 'launch',
 };
 
+var Routines = {
+    weather : 'weather',
+    traffic : 'traffic',
+    news : 'news'
+};
+
 var routine_builder = require('./routine-builder');
 bot.dialog('/', [
     function (session) {
+        session.conversationData.Routines = Routines;
         var msg = session.message.text;
         if (msg){
             msg = routine_builder.cleanInput(msg);
@@ -70,6 +77,7 @@ bot.dialog('/', [
             if (msg.includes('make')){
                 session.replaceDialog('make');
             }else{
+                session.conversationData.msg = msg;
                 session.replaceDialog('launch');                
             }
         }
@@ -94,7 +102,7 @@ bot.dialog('/', [
             var choice = results.response.entity;
             switch (choice){
                 case DialogLabels.make:
-                    session.beginDialog('make');
+                    session.replaceDialog('make');
                     break;
                 case DialogLabels.launch:
                     session.replaceDialog('launch');

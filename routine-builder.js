@@ -11,6 +11,7 @@ module.exports.make = [
         res = cleanInput(res);     
         session.conversationData.routineName = res;
         session.replaceDialog('nextSkill');
+        next();
     }
 ];
 
