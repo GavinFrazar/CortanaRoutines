@@ -2,7 +2,8 @@ var builder = require('botbuilder');
 
 module.exports.make = [
     function (session){
-        session.say('What should we call this routine?' , 'What should we call this routine');
+        var msg = 'What should we call this routine?';
+        session.say(msg,msg);
         builder.Prompts.text(session, 'Give a name for the routine you want to make');
     },
     function (session, results, next){
@@ -47,8 +48,11 @@ module.exports.nextSkill = [
         if (res.includes('yes') || res.includes('yeah')){
             session.replaceDialog('make');
         }else{
-            session.endConversation('Your routines are saved.');
+            session.say('Goodbye.', 'Goodbye.');
         }
+    },
+    function(session){
+        session.endConversation('Goodbye.', 'Goodebye.');
     }
 ];
 
@@ -56,3 +60,5 @@ module.exports.nextSkill = [
 function cleanInput(str){
     return str.toLowerCase().replace(/[^A-Za-z ]/g,'');
 }
+
+module.exports.cleanInput = cleanInput;

@@ -57,36 +57,56 @@ var bot = new builder.UniversalBot(connector);
 
 var DialogLabels = {
     make : 'make',
-    routine : 'routine',
-    start : 'routine'
-}
+    launch : 'launch',
+};
+
+var routine_builder = require('./routine-builder');
 bot.dialog('/', [
     function (session) {
-        session.endDialog();
         var msg = session.message.text;
         if (msg){
+            msg = routine_builder.cleanInput(msg);
             console.log('message = ' + msg);
-            if (msg == 'make' || msg == 'make.'){
+            if (msg.includes('make')){
                 session.replaceDialog('make');
             }else{
-                
+                session.replaceDialog('launch');                
             }
-        }else{
-            var msg = "Welcome to routines. ";
-            session.say(msg,msg);
-            builder.Prompts.choice(session, 
-                "Do you want to start a routine, or make one?",
-                [DialogLabels.make, DialogLabels.routine, DialogLabels.start],
-                {
-                    maxRetries : 3,
-                    retryPrompt : "Invalid option" 
-                }
-            );
         }
+        //no args with invocation phrase
+        msg = "Welcome to routines. ";
+        session.say(msg, msg);
+        builder.Prompts.choice(session, 
+            "Do you want to launch an existing routine, or make one?",
+            [DialogLabels.make, DialogLabels.launch],
+            {
+                maxRetries : 3,
+                retryPrompt : "Invalid option" 
+            }
+        );
+    },
+    function(session, results, next){
+        console.log(results);
+        if (!results.response){
+            console.log('no choice made');
+            //TODO -- handle no response nicely
+        }else{
+            var choice = results.response.entity;
+            switch (choice){
+                case DialogLabels.make:
+                    session.beginDialog('make');
+                    break;
+                case DialogLabels.launch:
+                    session.replaceDialog('launch');
+                    break;
+            }
+        }
+    },
+    function(session){
+        session.endConversation("Goodbye");
     }
 ]);
 
 bot.set('storage', tableStorage);
-var routine_builder = require('./routine-builder');
 bot.dialog('make', routine_builder.make);
 bot.dialog('nextSkill', routine_builder.nextSkill);
