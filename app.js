@@ -48,6 +48,26 @@ server.post('/api/messages', connector.listen());
 * For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
 * ---------------------------------------------------------------------------------------- */
 
+function invokeTask(routineName) {
+    console.log(routineName);
+
+    var query = new storage.TableQuery()
+        .top(5)
+        .where('PartitionKey eq ?', routineName);
+
+
+
+    storageClient.queryEntities('mytesttable', query, null, function (error, result, response) {
+        if (!error) {
+            console.log(result);
+        }
+    });
+
+
+
+}
+
+
 function createTask(routineName, count, newCommand) {
 
     var task = {
@@ -100,7 +120,7 @@ var bot = new builder.UniversalBot(connector, [
     function (session, results) {
         numOrString = results.response;
         if (typeof numOrString == "string")
-            builder.Prompts.number(session, "Invocing task from here");
+            invokeTask(numOrString);
         else {
             count = numOrString;
             session.say('', "What would you like to name the routine?");
@@ -108,13 +128,15 @@ var bot = new builder.UniversalBot(connector, [
         }
     },
     function (session, results) {
-        numOrString = results.response;
-        session.say('', "What would you like to name routine " + (displayCount + 1) + "?");
-        builder.Prompts.text(session, "What would you like to name routine " + (displayCount + 1) + "?");
-        if (typeof numOrString == "string") {
-            rName = numOrString;
-            createTask(rName, displayCount.toString(), results.response);
-            displayCount++;
+        if (count != displayCount) {
+            numOrString = results.response;
+            session.say('', "What would you like to name routine " + (displayCount + 1) + "?");
+            builder.Prompts.text(session, "What would you like to name routine " + (displayCount + 1) + "?");
+            if (typeof numOrString == "string") {
+                rName = numOrString;
+                createTask(rName, displayCount.toString(), results.response);
+                displayCount++;
+            }
         }
     },
     function (session, results) {
