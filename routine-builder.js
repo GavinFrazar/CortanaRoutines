@@ -11,6 +11,7 @@ module.exports.make = [
         res = cleanInput(res);     
         session.conversationData.routineName = res;
         session.replaceDialog('nextSkill');
+        next();
     }
 ];
 
@@ -24,7 +25,6 @@ module.exports.nextSkill = [
         var res = results.response;
         res = cleanInput(res);
         session.res = res;
-        console.log(session.res);
         if (!session.res.includes("done")){
             session.replaceDialog('nextSkill');
         }else{
