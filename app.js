@@ -105,7 +105,6 @@ bot.dialog('/', [
 ]);
 
 bot.set('storage', tableStorage);
-bot.dialog('make', routine_builder.make);
 bot.dialog('nextSkill', routine_builder.nextSkill);
 var current_weather = require('./weather.js').current_weather;
 bot.dialog('weather', current_weather);
@@ -117,11 +116,14 @@ var traffic = require('./traffic.js').traffic;
 bot.dialog('traffic', traffic);
 var routine_launcher = require('./routine-launcher');
 
-bot.dialog('skillExecutor', routine_launcher.skillExecutor);
+bot.dialog('skillExecutor', routine_launcher.skillExecutor).triggerAction({matches: [
+    /(next|continue)/i
+]})
+
 bot.dialog('launch', routine_launcher.launch).triggerAction({ matches: [
-    /(launch|run|start|begin)/i
+    /(launch|run)/i
  ]});
  
 bot.dialog('make', routine_builder.make).triggerAction({ matches: [
-    /(create|make|new)/i
+    /(create|make)/i
  ]});

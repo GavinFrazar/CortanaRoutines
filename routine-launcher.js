@@ -51,13 +51,8 @@ module.exports.skillExecutor = [
     if (skill){
         console.log(skill);
         session.beginDialog(skill);
+    }else{
+        session.endConversation('Bye!');
     }
-  },
-  function(session){
-      if (session.conversationData.routine.length > 0){
-          session.replaceDialog('skillExecutor');
-      }else{
-          session.endConversation('Bye!');
-      }
-  }  
+  } 
 ];
