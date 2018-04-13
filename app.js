@@ -48,17 +48,43 @@ server.post('/api/messages', connector.listen());
 * For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
 * ---------------------------------------------------------------------------------------- */
 
+var userInput;
+var numOrString;
+
+
 var tableName = 'botdata';
 var azureTableClient = new botbuilder_azure.AzureTableClient(tableName, process.env['AzureWebJobsStorage']);
 var tableStorage = new botbuilder_azure.AzureBotStorage({ gzipData: false }, azureTableClient);
 
-// Create your bot with a function to receive messages from the user
-var bot = new builder.UniversalBot(connector);
-bot.set('storage', tableStorage);
-
-bot.dialog('/', function (session) {
-    session.say('test', 'oh my god you are totally going to, like, win this competition I think!');
-});
+var bot = new builder.UniversalBot(connector, [
+    function (session) {
+        session.say('', "Welcome to Apollo routines!");
+        session.say('', "Would you like to create, or use a existing routine?");
+        builder.Prompts.text(session, "Would you like to create, or use a existing routine?");
+    },
+    function (session, results) {
+        userInput = results.response;
+        // if(userInput == "create a routine" || "Create a routine."){
+        if (userInput.includes("reate")) {
+            session.say('', "How many tasks would you like?");
+            builder.Prompts.number(session, "How many tasks would you like?");
+        } else if (userInput.includes("routin")) {
+            session.say('', "What routine would you like to use?");
+            builder.Prompts.text(session, "What routine would you like to use?");
+        }
+        else
+            console.log(userInput);
+    },
+    function (session, results) {
+        numOrString = results.response;
+        if (typeof numOrString == "string")
+            builder.Prompts.number(session, "Invocing task from here");
+        else {
+            session.say('', "What would you like to name the routine?");
+            builder.Prompts.text(session, "What would you like to name the routine?");
+        }
+    }
+]);
 
 /*----------------
 Entering multiple tasks
