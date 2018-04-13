@@ -49,8 +49,9 @@ var Skills = [
     'news'
 ];
 
+//STUB
 var Routines = {
-    morning: ['weather', 'traffic', 'news']
+    morning: ['make', 'make', 'make', 'make']
 };
 
 bot.set('storage', tableStorage);
@@ -61,16 +62,6 @@ bot.dialog('/', [
         session.conversationData.Skills = Skills;
         session.conversationData.Routines = Routines;
         var msg = session.message.text;
-        if (msg){
-            msg = routine_builder.cleanInput(msg);
-            console.log('message = ' + msg);
-            if (msg.includes('make')){
-                session.replaceDialog('make');
-            }else{
-                session.conversationData.routine = msg;
-                session.replaceDialog('launch');                
-            }
-        }
         //no args with invocation phrase
         msg = "Welcome to routines. ";
         session.say(msg, msg);
@@ -107,6 +98,12 @@ bot.dialog('/', [
 
 var routine_launcher = require('./routine-launcher');
 
-bot.dialog('launch', routine_launcher.launch);
-bot.dialog('make', routine_builder.make);
+bot.dialog('skillExecutor', routine_launcher.skillExecutor);
+bot.dialog('launch', routine_launcher.launch).triggerAction({ matches: [
+    /(launch|run|start|begin)/i
+ ]});
+ 
+bot.dialog('make', routine_builder.make).triggerAction({ matches: [
+    /(create|make|new)/i
+ ]});
 bot.dialog('nextSkill', routine_builder.nextSkill);

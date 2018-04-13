@@ -35,12 +35,29 @@ module.exports.launch = [
                 break;
             }
         }
-        var routine = session.conversationData.Routines[routine];
+        console.log(session.conversationData.Routines);
+        var routine = session.conversationData.Routines['morning'];
         console.log('routine = ' + routine);
         session.conversationData.routine = routine;
-    },
-    //execute routine
-    function(session){
-        session.beginDialog(session.conversationData.routine.shift());
+        //execute routine
+        session.replaceDialog('skillExecutor');
     }
+];
+
+module.exports.skillExecutor = [
+  function(session){
+    console.log('here');
+    var skill = session.conversationData.routine.shift();
+    if (skill){
+        console.log(skill);
+        session.beginDialog(skill);
+    }
+  },
+  function(session){
+      if (session.conversationData.routine.length > 0){
+          session.replaceDialog('skillExecutor');
+      }else{
+          session.endConversation('Bye!');
+      }
+  }  
 ];
