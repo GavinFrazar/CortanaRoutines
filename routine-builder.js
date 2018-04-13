@@ -49,10 +49,11 @@ module.exports.nextSkill = [
             session.replaceDialog('make');
         }else{
             session.say('Goodbye.', 'Goodbye.');
+            next();
         }
     },
     function(session){
-        session.endConversation('Goodbye.', 'Goodebye.');
+        session.endConversation('Goodbye.');
     }
 ];
 
