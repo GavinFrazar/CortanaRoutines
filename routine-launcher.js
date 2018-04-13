@@ -8,14 +8,8 @@ var Skills = [
     'news'
 ];
 
-//STUB
-var Routines = {
-    morning: ['make', 'make', 'make', 'make']
-};
-
 module.exports.launch = [
     function(session){
-        session.conversationData.Routines = Routines;
         session.conversationData.Skills = Skills;
         var userInfo = session.message.entities.find((e) => {
             return e.type === 'UserInfo';
@@ -25,6 +19,7 @@ module.exports.launch = [
             session.conversationData.email = userInfo['email'];
             if (session.conversationData.routine){                
                 var res = session.conversationData.routine;
+                console.log(res);
                 res = cleanInput(res);
                 session.conversationData.routine = res;
             }else{
@@ -50,7 +45,7 @@ module.exports.launch = [
             }
         }
         console.log(session.conversationData.Routines);
-        var routine = session.conversationData.Routines['morning'];
+        var routine = session.conversationData.Routines[session.conversationData.routineName];
         console.log('routine = ' + routine);
         session.conversationData.routine = routine;
         //execute routine
@@ -62,6 +57,10 @@ module.exports.skillExecutor = [
   function(session){
     console.log('here');
     var skill = session.conversationData.routine.shift();
+    skill = session.conversationData.Skills.find((e) => {
+        return skill.includes(e);
+    });
+    
     if (skill){
         console.log(skill);
         session.beginDialog(skill);

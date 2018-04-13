@@ -26,6 +26,11 @@ module.exports.nextSkill = [
         res = cleanInput(res);
         session.res = res;
         if (!session.res.includes("done")){
+            if (!session.conversationData.tempRoutine){
+                session.conversationData.tempRoutine = [res];
+            }else{
+                session.conversationData.tempRoutine.push(res);
+            }
             session.replaceDialog('nextSkill');
         }else{
             var msg = "Okay, I'll remember your " +
@@ -33,6 +38,12 @@ module.exports.nextSkill = [
             if (!session.conversationData.routineName.includes('routine'))
                 msg += " routine";
             msg += '.';
+            if (!session.conversationData.Routines){
+                session.conversationData.Routines = {};
+            }
+            var rN = session.conversationData.routineName;
+            session.conversationData.Routines[rN] = session.conversationData.tempRoutine;
+            session.conversationData.tempRoutine = [];
             session.say(msg, msg);
             next();
         }
@@ -48,12 +59,13 @@ module.exports.nextSkill = [
         if (res.includes('yes') || res.includes('yeah')){
             session.replaceDialog('make');
         }else{
-            session.say('Goodbye.', 'Goodbye.');
+            var m = "Okay.";
+            session.say(m,m);
             next();
         }
     },
     function(session){
-        session.endConversation('Goodbye.');
+        session.endDialog();
     }
 ];
 

@@ -57,18 +57,12 @@ var Skills = [
     'news'
 ];
 
-//STUB
-var Routines = {
-    morning: ['make', 'make', 'make', 'make']
-};
-
 bot.set('storage', tableStorage);
 
 var routine_builder = require('./routine-builder');
 bot.dialog('/', [
     function (session) {
         session.conversationData.Skills = Skills;
-        session.conversationData.Routines = Routines;
         var msg = session.message.text;
         //no args with invocation phrase
         msg = "Welcome to routines. ";

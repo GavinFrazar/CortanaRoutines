@@ -31,6 +31,9 @@ module.exports.traffic = [
 
             var leave_hours = Math.floor(leave_time/60);
             var leave_mins = leave_time % 60;
+            if (leave_mins < 10){
+                leave_mins = "0" + leave_mins;
+            }
 
             var card = new builder.Message(session)
             .addAttachment({
