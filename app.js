@@ -112,36 +112,10 @@ bot.set('storage', tableStorage);
 bot.dialog('make', routine_builder.make);
 bot.dialog('nextSkill', routine_builder.nextSkill);
 var current_weather = require('./weather.js').current_weather;
-bot.dialog('/weather', current_weather);
+bot.dialog('weather', current_weather);
 
 var news = require('./news.js').news;
-bot.dialog('/news', news);
+bot.dialog('news', news);
 
 var traffic = require('./traffic.js').traffic;
-bot.dialog('/traffic', traffic);
-
-/*----------------
-Entering multiple tasks
-----------------*/
-var task1 = {
-    PartitionKey: { '_': 'morning' },
-    RowKey: { '_': '1' },
-    description: { '_': 'weather' }
-};
-
-var task2 = {
-    PartitionKey: { '_': 'morning' },
-    RowKey: { '_': '2' },
-    description: { '_': 'traffic' },
-};
-
-var batch = new storage.TableBatch();
-
-batch.insertOrReplaceEntity(task1, { echoContent: true });
-batch.insertOrReplaceEntity(task2, { echoContent: true });
-
-storageClient.executeBatch('mytesttable', batch, function (error, result, response) {
-    if (!error) {
-        console.log('Batch completed');
-    }
-});
+bot.dialog('traffic', traffic);
