@@ -85,3 +85,22 @@ storageClient.executeBatch('mytesttable', batch, function (error, result, respon
         console.log('Batch completed');
     }
 });
+
+/*----------------
+Gets Pacific Stadard Time
+----------------*/
+var getUserDateAndTime = new Date();
+
+var timeZoneFromDB = -7.00; //time zone value from database
+//get the timezone offset from local time in minutes
+var tzDifference = timeZoneFromDB * 60 + getUserDateAndTime.getTimezoneOffset();
+//convert the offset to milliseconds, add to targetTime, and make a new Date
+var offsetTime = new Date(getUserDateAndTime.getTime() + tzDifference * 60 * 1000);
+
+console.log(offsetTime.getHours() + ":" + offsetTime.getMinutes() + " " + offsetTime.getSeconds() + "s");
+
+/*----------------
+Adding seconds to the time
+----------------*/
+offsetTime.setSeconds(offsetTime.getSeconds() + 4444);
+console.log(offsetTime.getHours() + ":" + offsetTime.getMinutes() + " " + offsetTime.getSeconds() + "s");
