@@ -27,15 +27,20 @@ module.exports.launch = [
         session.conversationData.routine = res;
         next();
     },
+    //get the routine from known Routines
     function(session){
-        console.log('email = ' + session.conversationData.email);
-        console.log(session.conversationData.Routines);
-        var routine = session.conversationData.Routines.find((e) => {
-            return session.conversationData.routine.includes(e);
-        });
-
-        if (routine){
-            console.log("routine selected = " + routine);
+        for (var key in session.conversationData.Routines){
+            if (session.conversationData.routine.includes(key)){
+                session.conversationData.routine = key;
+                break;
+            }
         }
+        var routine = session.conversationData.Routines[routine];
+        console.log('routine = ' + routine);
+        session.conversationData.routine = routine;
+    },
+    //execute routine
+    function(session){
+        session.beginDialog(session.conversationData.routine.shift());
     }
 ];
