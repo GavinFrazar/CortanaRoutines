@@ -118,7 +118,7 @@ var routine_launcher = require('./routine-launcher');
 
 bot.dialog('skillExecutor', routine_launcher.skillExecutor).triggerAction({matches: [
     /(next|continue)/i
-]})
+]});
 
 bot.dialog('launch', routine_launcher.launch).triggerAction({ matches: [
     /(launch|run)/i

@@ -1,8 +1,22 @@
 var cleanInput = require('./routine-builder').cleanInput;
 var builder = require('botbuilder');
 
+//TODO -- loadroutines from table
+var Skills = [
+    'weather',
+    'traffic',
+    'news'
+];
+
+//STUB
+var Routines = {
+    morning: ['make', 'make', 'make', 'make']
+};
+
 module.exports.launch = [
     function(session){
+        session.conversationData.Routines = Routines;
+        session.conversationData.Skills = Skills;
         var userInfo = session.message.entities.find((e) => {
             return e.type === 'UserInfo';
         });
