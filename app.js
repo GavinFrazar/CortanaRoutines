@@ -4,26 +4,20 @@ A simple echo bot for the Microsoft Bot Framework.
 
 var restify = require('restify');
 var builder = require('botbuilder');
-var botbuilder_azure = require("botbuilder-azure");
+var azure = require("botbuilder-azure");
 
 /*-----------------------
 setting up table storage 
 -----------------------*/
-var storage = require('azure-storage');
-var connectionString = "DefaultEndpointsProtocol=https;AccountName=apollostorage2;AccountKey=35ZE7pRvyiDOv5mPNoUcIXQxfpocc4fDLASOe1p1mPIHv1fR2Y6yA7bnhiaoEpRozHphcFiKMR6wZrFFdsAlkQ==;TableEndpoint=https://apollostorage2.table.cosmosdb.azure.com:443/;";
-var storageClient = storage.createTableService(connectionString);
+var documentDbOptions = {
+    host: '',
+    masterKey: '',
+    database: 'botdocs',
+    collection: 'botdata'
+};
 
-storageClient.createTableIfNotExists('mytesttable', function (error, result, response) {
-    if (!error) {
-        // Table exists or created
-    }
-    if (result.created) {
-        console.log('created new table');
-    }
-    else {
-        console.log('table exists');
-    }
-});
+var docDbClient = new azure.DocumentDbClient(documentDbOptions);
+var cosmosStorage = new azure.AzureBotStorage({gzipData:false}, docDbClient);
 
 
 // Setup Restify Server
@@ -39,37 +33,28 @@ var connector = new builder.ChatConnector({
     openIdMetadata: process.env.BotOpenIdMetadata
 });
 
+// Create your bot with a function to receive messages from the user
+var bot = new builder.UniversalBot(connector).set('storage', cosmosStorage);
+
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
-
-/*----------------------------------------------------------------------------------------
-* Bot Storage: This is a great spot to register the private state storage for your bot. 
-* We provide adapters for Azure Table, CosmosDb, SQL Azure, or you can implement your own!
-* For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
-* ---------------------------------------------------------------------------------------- */
-
-var tableName = 'botdata';
-var azureTableClient = new botbuilder_azure.AzureTableClient(tableName, process.env['AzureWebJobsStorage']);
-var tableStorage = new botbuilder_azure.AzureBotStorage({ gzipData: false }, azureTableClient);
-
-// Create your bot with a function to receive messages from the user
-var bot = new builder.UniversalBot(connector);
 
 var DialogLabels = {
     make : 'make',
     launch : 'launch',
 };
 
-var Routines = {
-    weather : 'weather',
-    traffic : 'traffic',
-    news : 'news'
-};
+//TODO -- loadroutines from table
+var Skills = [
+    'weather',
+    'traffic',
+    'news'
+];
 
 var routine_builder = require('./routine-builder');
 bot.dialog('/', [
     function (session) {
-        session.conversationData.Routines = Routines;
+        session.conversationData.Skills = Skills;
         var msg = session.message.text;
         if (msg){
             msg = routine_builder.cleanInput(msg);
@@ -116,7 +101,7 @@ bot.dialog('/', [
 ]);
 
 var routine_launcher = require('./routine-launcher');
-bot.set('storage', tableStorage);
+
 bot.dialog('launch', routine_launcher.launch);
 bot.dialog('make', routine_builder.make);
 bot.dialog('nextSkill', routine_builder.nextSkill);

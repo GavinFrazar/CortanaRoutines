@@ -30,5 +30,12 @@ module.exports.launch = [
     function(session){
         console.log('email = ' + session.conversationData.email);
         console.log(session.conversationData.Routines);
+        var routine = session.conversationData.Routines.find((e) => {
+            return session.conversationData.routine.includes(e);
+        });
+
+        if (routine){
+            console.log("routine selected = " + routine);
+        }
     }
 ];
