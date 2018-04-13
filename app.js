@@ -1,13 +1,14 @@
 /*-----------------------------------------------------------------------------
-A simple echo bot for the Microsoft Bot Framework. 
+A simple echo bot for the Microsoft Bot Framework.
 -----------------------------------------------------------------------------*/
 
 var restify = require('restify');
 var builder = require('botbuilder');
 var botbuilder_azure = require("botbuilder-azure");
+var fetch = require('node-fetch');
 
 /*-----------------------
-setting up table storage 
+setting up table storage
 -----------------------*/
 var storage = require('azure-storage');
 var connectionString = "DefaultEndpointsProtocol=https;AccountName=apollostorage2;AccountKey=35ZE7pRvyiDOv5mPNoUcIXQxfpocc4fDLASOe1p1mPIHv1fR2Y6yA7bnhiaoEpRozHphcFiKMR6wZrFFdsAlkQ==;TableEndpoint=https://apollostorage2.table.cosmosdb.azure.com:443/;";
@@ -29,9 +30,9 @@ storageClient.createTableIfNotExists('mytesttable', function (error, result, res
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
-   console.log('%s listening to %s', server.name, server.url); 
+   console.log('%s listening to %s', server.name, server.url);
 });
-  
+
 // Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector({
     appId: process.env.MicrosoftAppId,
@@ -39,11 +40,11 @@ var connector = new builder.ChatConnector({
     openIdMetadata: process.env.BotOpenIdMetadata
 });
 
-// Listen for messages from users 
+// Listen for messages from users
 server.post('/api/messages', connector.listen());
 
 /*----------------------------------------------------------------------------------------
-* Bot Storage: This is a great spot to register the private state storage for your bot. 
+* Bot Storage: This is a great spot to register the private state storage for your bot.
 * We provide adapters for Azure Table, CosmosDb, SQL Azure, or you can implement your own!
 * For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
 * ---------------------------------------------------------------------------------------- */
@@ -57,8 +58,27 @@ var bot = new builder.UniversalBot(connector);
 bot.set('storage', tableStorage);
 
 bot.dialog('/', function (session) {
-    session.say('test', 'oh my god you are totally going to, like, win this competition I think!');
+    if (session.message.text.toLowerCase().includes('weather')) {
+        session.beginDialog('/weather');
+    } else if (session.message.text.toLowerCase().includes('news')) {
+        session.beginDialog('/news');
+    } else if (session.message.text.toLowerCase().includes('traffic')) {
+        session.beginDialog('/traffic');
+    }else if (session.message.text.toLowerCase().includes('done')) {
+        session.endConversation("Goodbye");
+    } else {
+        session.send('You said ' + session.message.text);
+    }
 });
+
+var current_weather = require('./weather.js').current_weather;
+bot.dialog('/weather', current_weather);
+
+var news = require('./news.js').news;
+bot.dialog('/news', news);
+
+var traffic = require('./traffic.js').traffic;
+bot.dialog('/traffic', traffic);
 
 /*----------------
 Entering multiple tasks
