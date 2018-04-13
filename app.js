@@ -57,31 +57,10 @@ var bot = new builder.UniversalBot(connector);
 bot.set('storage', tableStorage);
 
 bot.dialog('/', function (session) {
-    session.say('test', 'oh my god you are totally going to, like, win this competition I think!');
-});
-
-/*----------------
-Entering multiple tasks
-----------------*/
-var task1 = {
-    PartitionKey: { '_': 'morning' },
-    RowKey: { '_': '1' },
-    description: { '_': 'weather' }
-};
-
-var task2 = {
-    PartitionKey: { '_': 'morning' },
-    RowKey: { '_': '2' },
-    description: { '_': 'traffic' },
-};
-
-var batch = new storage.TableBatch();
-
-batch.insertOrReplaceEntity(task1, { echoContent: true });
-batch.insertOrReplaceEntity(task2, { echoContent: true });
-
-storageClient.executeBatch('mytesttable', batch, function (error, result, response) {
-    if (!error) {
-        console.log('Batch completed');
+    var message = session.message.text;
+    if (message == 'make' || message == 'make.'){
+        session.beginDialog('/make');
     }
 });
+
+bot.dialog('/make', require('routine-builder'));
