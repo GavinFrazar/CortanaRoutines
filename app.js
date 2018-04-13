@@ -77,7 +77,7 @@ bot.dialog('/', [
             if (msg.includes('make')){
                 session.replaceDialog('make');
             }else{
-                session.conversationData.msg = msg;
+                session.conversationData.routine = msg;
                 session.replaceDialog('launch');                
             }
         }
@@ -115,6 +115,8 @@ bot.dialog('/', [
     }
 ]);
 
+var routine_launcher = require('./routine-launcher');
 bot.set('storage', tableStorage);
+bot.dialog('launch', routine_launcher.launch);
 bot.dialog('make', routine_builder.make);
 bot.dialog('nextSkill', routine_builder.nextSkill);
