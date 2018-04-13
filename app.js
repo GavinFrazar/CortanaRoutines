@@ -54,13 +54,39 @@ var tableStorage = new botbuilder_azure.AzureBotStorage({ gzipData: false }, azu
 
 // Create your bot with a function to receive messages from the user
 var bot = new builder.UniversalBot(connector);
-bot.set('storage', tableStorage);
 
-bot.dialog('/', function (session) {
-    var message = session.message.text;
-    if (message == 'make' || message == 'make.'){
-        session.beginDialog('/make');
+var DialogLabels = {
+    make : 'make',
+    routine : 'routine',
+    start : 'routine'
+}
+bot.dialog('/', [
+    function (session) {
+        session.endDialog();
+        var msg = session.message.text;
+        if (msg){
+            console.log('message = ' + msg);
+            if (msg == 'make' || msg == 'make.'){
+                session.replaceDialog('make');
+            }else{
+                
+            }
+        }else{
+            var msg = "Welcome to routines. ";
+            session.say(msg,msg);
+            builder.Prompts.choice(session, 
+                "Do you want to start a routine, or make one?",
+                [DialogLabels.make, DialogLabels.routine, DialogLabels.start],
+                {
+                    maxRetries : 3,
+                    retryPrompt : "Invalid option" 
+                }
+            );
+        }
     }
-});
+]);
 
-bot.dialog('/make', require('routine-builder'));
+bot.set('storage', tableStorage);
+var routine_builder = require('./routine-builder');
+bot.dialog('make', routine_builder.make);
+bot.dialog('nextSkill', routine_builder.nextSkill);
