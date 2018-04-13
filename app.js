@@ -1,13 +1,14 @@
 /*-----------------------------------------------------------------------------
-A simple echo bot for the Microsoft Bot Framework. 
+A simple echo bot for the Microsoft Bot Framework.
 -----------------------------------------------------------------------------*/
 
 var restify = require('restify');
 var builder = require('botbuilder');
 var botbuilder_azure = require("botbuilder-azure");
+var fetch = require('node-fetch');
 
 /*-----------------------
-setting up table storage 
+setting up table storage
 -----------------------*/
 var storage = require('azure-storage');
 var connectionString = "DefaultEndpointsProtocol=https;AccountName=apollostorage2;AccountKey=35ZE7pRvyiDOv5mPNoUcIXQxfpocc4fDLASOe1p1mPIHv1fR2Y6yA7bnhiaoEpRozHphcFiKMR6wZrFFdsAlkQ==;TableEndpoint=https://apollostorage2.table.cosmosdb.azure.com:443/;";
@@ -29,9 +30,9 @@ storageClient.createTableIfNotExists('mytesttable', function (error, result, res
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
-   console.log('%s listening to %s', server.name, server.url); 
+   console.log('%s listening to %s', server.name, server.url);
 });
-  
+
 // Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector({
     appId: process.env.MicrosoftAppId,
@@ -39,11 +40,11 @@ var connector = new builder.ChatConnector({
     openIdMetadata: process.env.BotOpenIdMetadata
 });
 
-// Listen for messages from users 
+// Listen for messages from users
 server.post('/api/messages', connector.listen());
 
 /*----------------------------------------------------------------------------------------
-* Bot Storage: This is a great spot to register the private state storage for your bot. 
+* Bot Storage: This is a great spot to register the private state storage for your bot.
 * We provide adapters for Azure Table, CosmosDb, SQL Azure, or you can implement your own!
 * For samples and documentation, see: https://github.com/Microsoft/BotBuilder-Azure
 * ---------------------------------------------------------------------------------------- */
@@ -110,3 +111,37 @@ bot.dialog('/', [
 bot.set('storage', tableStorage);
 bot.dialog('make', routine_builder.make);
 bot.dialog('nextSkill', routine_builder.nextSkill);
+var current_weather = require('./weather.js').current_weather;
+bot.dialog('/weather', current_weather);
+
+var news = require('./news.js').news;
+bot.dialog('/news', news);
+
+var traffic = require('./traffic.js').traffic;
+bot.dialog('/traffic', traffic);
+
+/*----------------
+Entering multiple tasks
+----------------*/
+var task1 = {
+    PartitionKey: { '_': 'morning' },
+    RowKey: { '_': '1' },
+    description: { '_': 'weather' }
+};
+
+var task2 = {
+    PartitionKey: { '_': 'morning' },
+    RowKey: { '_': '2' },
+    description: { '_': 'traffic' },
+};
+
+var batch = new storage.TableBatch();
+
+batch.insertOrReplaceEntity(task1, { echoContent: true });
+batch.insertOrReplaceEntity(task2, { echoContent: true });
+
+storageClient.executeBatch('mytesttable', batch, function (error, result, response) {
+    if (!error) {
+        console.log('Batch completed');
+    }
+});
